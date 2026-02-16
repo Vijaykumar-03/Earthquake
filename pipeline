@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/yourrepo/earthquake-devops.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t earthquake-app:latest .'
+            }
+        }
+
+        stage('Stop Old Container') {
+            steps {
+                sh '''
+                docker rm -f earthquake || true
+                '''
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh '''
+                docker run -d \
+                --name earthquake \
+                -v quake-data:/data \
+                earthquake-app:latest
+                '''
+            }
+        }
+    }
+}
