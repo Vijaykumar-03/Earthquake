@@ -2,9 +2,14 @@ pipeline {
     agent any
 
     stages {
+        stage('clean data'){
+        steps{
+                cleanWs()
+}
+}
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/yourrepo/earthquake-devops.git'
+                git 'https://github.com/Vijaykumar-03/Earthquake.git'
             }
         }
 
@@ -17,6 +22,7 @@ pipeline {
         stage('Stop Old Container') {
             steps {
                 sh '''
+                docker stop earthqauke
                 docker rm -f earthquake || true
                 '''
             }
@@ -25,12 +31,15 @@ pipeline {
         stage('Run Container') {
             steps {
                 sh '''
-                docker run -d \
-                --name earthquake \
-                -v quake-data:/data \
-                earthquake-app:latest
+                docker run -d -name earthquake  -p 8000:80 -v vijay:/usr/share/nginx/html earthquake
                 '''
             }
         }
+    post {
+    always{
+ echo 'remove after execution pipeline'
+    cleanWs()
+}
+}
     }
 }
